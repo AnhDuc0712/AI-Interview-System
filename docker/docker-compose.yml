@@ -1,0 +1,29 @@
+version: '3.9'
+services:
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile.frontend
+    ports:
+      - '4173:4173'
+    env_file:
+      - ../.env
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+      - VITE_CLERK_PUBLISHABLE_KEY=${VITE_CLERK_PUBLISHABLE_KEY}
+      - VITE_CLERK_FRONTEND_API=${VITE_CLERK_FRONTEND_API}
+    volumes:
+      - ../frontend:/app
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "4173"]
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.backend
+    ports:
+      - '8000:8000'
+    env_file:
+      - ../.env
+    volumes:
+      - ../backend:/app
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

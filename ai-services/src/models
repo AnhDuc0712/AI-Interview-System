@@ -1,0 +1,29 @@
+export interface User {
+    id: string;
+    name: string;
+    email: string;
+    role: 'interviewer' | 'interviewee';
+}
+
+export interface Interview {
+    id: string;
+    title: string;
+    description: string;
+    date: Date;
+    participants: User[];
+}
+
+export interface Question {
+    id: string;
+    interviewId: string;
+    text: string;
+    type: 'text' | 'multiple-choice' | 'boolean';
+    options?: string[];
+}
+
+export interface Response {
+    id: string;
+    questionId: string;
+    userId: string;
+    answer: string | boolean;
+}

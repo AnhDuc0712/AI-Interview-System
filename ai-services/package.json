@@ -1,0 +1,23 @@
+{
+  "name": "ai-services",
+  "version": "1.0.0",
+  "description": "AI services for the AI-Interview-System project.",
+  "main": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.3.2",
+    "jest": "^27.0.6",
+    "@types/jest": "^27.0.1",
+    "@types/node": "^14.14.31"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

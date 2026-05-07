@@ -1,0 +1,19 @@
+name: Security
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 0'
+
+jobs:
+  dependency-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run npm audit
+        run: cd frontend && npm audit --audit-level=moderate || true
+      - name: Run safety scan
+        run: |
+          python -m pip install safety
+          cd backend && safety check --full-report || true
