@@ -49,6 +49,8 @@ class StructuredCVPersonalInfo(BaseModel):
     full_name: str | None = None
     email: str | None = None
     phone: str | None = None
+    github: str | None = None
+    linkedin: str | None = None
     location: str | None = None
     summary: str | None = None
 
@@ -81,6 +83,7 @@ class StructuredCVData(BaseModel):
     projects: list[StructuredCVProjectItem] = Field(default_factory=list)
     certifications: list[str] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)
+    categorized_skills: dict[str, list[str]] = Field(default_factory=dict)
     raw_sections: dict[str, list[str]] = Field(default_factory=dict)
 
 

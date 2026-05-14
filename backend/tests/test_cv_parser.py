@@ -16,12 +16,14 @@ def test_structured_cv_parser_extracts_core_sections():
 ada@example.com
 +1 555 111 2222
 London, UK
+github.com/adalovelace
+linkedin.com/in/ada-lovelace
 
 Summary
 Backend engineer focused on AI systems.
 
 Skills
-Python, FastAPI, MongoDB
+ReactJS, react.js, FastAPI, nodejs, Node.js, MongoDB, mongodb, docker, Docker
 
 Experience
 Senior Backend Engineer - AI Interview System
@@ -37,7 +39,14 @@ University of London - BSc - Computer Science
 
     assert parsed.personal_info.full_name == 'Ada Lovelace'
     assert parsed.personal_info.email == 'ada@example.com'
-    assert 'Python' in parsed.skills
+    assert parsed.personal_info.github == 'https://github.com/adalovelace'
+    assert parsed.personal_info.linkedin == 'https://linkedin.com/in/ada-lovelace'
+    assert parsed.personal_info.location == 'London, UK'
+    assert parsed.skills == ['React', 'FastAPI', 'Node.js', 'MongoDB', 'Docker']
+    assert parsed.categorized_skills['frontend'] == ['React']
+    assert parsed.categorized_skills['backend'] == ['FastAPI', 'Node.js']
+    assert parsed.categorized_skills['database'] == ['MongoDB']
+    assert parsed.categorized_skills['devops'] == ['Docker']
     assert parsed.experience[0].title == 'Senior Backend Engineer'
     assert parsed.projects[0].name == 'Interview Copilot'
     assert parsed.education[0].institution == 'University of London'

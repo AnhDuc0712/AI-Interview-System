@@ -41,6 +41,15 @@ class Settings(BaseSettings):
     clerk_jwt_issuer: str | None = Field(default=None, validation_alias='CLERK_JWT_ISSUER')
     clerk_jwt_audience: str | None = Field(default=None, validation_alias='CLERK_JWT_AUDIENCE')
     clerk_jwks_url: str | None = Field(default=None, validation_alias='CLERK_JWKS_URL')
+    playwright_headless: bool = Field(default=True, validation_alias='PLAYWRIGHT_HEADLESS')
+    playwright_timeout_ms: int = Field(default=30000, validation_alias='PLAYWRIGHT_TIMEOUT_MS')
+    playwright_user_agent: str | None = Field(
+        default='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 '
+                '(KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+        validation_alias='PLAYWRIGHT_USER_AGENT'
+    )
+    crawler_rate_limit_seconds: float = Field(default=1.0, validation_alias='CRAWLER_RATE_LIMIT_SECONDS')
+    crawler_max_retries: int = Field(default=2, validation_alias='CRAWLER_MAX_RETRIES')
     clerk_authorized_parties: str | None = Field(
         default=None,
         validation_alias='CLERK_AUTHORIZED_PARTIES'
