@@ -55,6 +55,16 @@ type UploadAuthenticatedFileParams = {
   onProgress?: (progress: number) => void;
 };
 
+export type UploadResponseMeta = {
+  headers: Record<string, string>;
+  status: number;
+};
+
+export type UploadWithMetaResponse<T> = {
+  data: T;
+  meta: UploadResponseMeta;
+};
+
 export class ApiError extends Error {
   status: number;
 
@@ -152,11 +162,11 @@ const handleJsonResponse = async <T>(response: Response): Promise<T> => {
 const uploadWithFreshToken = async <T>(
   params: UploadAuthenticatedFileParams,
   retryAttempt = 0
-): Promise<T> => {
+): Promise<UploadWithMetaResponse<T>> => {
   const { file, fieldName = 'file', getToken, onProgress, path } = params;
   const token = await getFreshToken(getToken);
 
-  return new Promise<T>((resolve, reject) => {
+  return new Promise<UploadWithMetaResponse<T>>((resolve, reject) => {
     const formData = new FormData();
     formData.append(fieldName, file);
 
@@ -174,9 +184,30 @@ const uploadWithFreshToken = async <T>(
     request.onload = async () => {
       const status = request.status;
       const response = request.response;
+      const rawHeaders = request.getAllResponseHeaders();
+      const headers = rawHeaders
+        .trim()
+        .split(/[\r\n]+/)
+        .filter(Boolean)
+        .reduce<Record<string, string>>((accumulator, line) => {
+          const separatorIndex = line.indexOf(':');
+          if (separatorIndex === -1) {
+            return accumulator;
+          }
+          const key = line.slice(0, separatorIndex).trim().toLowerCase();
+          const value = line.slice(separatorIndex + 1).trim();
+          accumulator[key] = value;
+          return accumulator;
+        }, {});
 
       if (status >= 200 && status < 300) {
-        resolve(response as T);
+        resolve({
+          data: response as T,
+          meta: {
+            headers,
+            status
+          }
+        });
         return;
       }
 
@@ -231,4 +262,11 @@ export const fetchAuthenticatedJson = async <T>(
 
 export const uploadAuthenticatedFile = async <T>(
   params: UploadAuthenticatedFileParams
-): Promise<T> => uploadWithFreshToken<T>(params);
+): Promise<T> => {
+  const response = await uploadWithFreshToken<T>(params);
+  return response.data;
+};
+
+export const uploadAuthenticatedFileWithMeta = async <T>(
+  params: UploadAuthenticatedFileParams
+): Promise<UploadWithMetaResponse<T>> => uploadWithFreshToken<T>(params);

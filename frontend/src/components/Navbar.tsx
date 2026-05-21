@@ -22,6 +22,9 @@ const Navbar = () => (
         <NavLink to="/cvs" className={({ isActive }) => navLinkClassName(isActive)}>
           My CVs
         </NavLink>
+        <NavLink to="/skill-insights" className={({ isActive }) => navLinkClassName(isActive)}>
+          Skill Insights
+        </NavLink>
         <SignedIn>
           <SignOutButton>
             <button className="rounded-full bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700">

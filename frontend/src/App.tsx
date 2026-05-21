@@ -3,6 +3,7 @@ import HomePage from './pages/HomePage';
 import DashboardPage from './pages/DashboardPage';
 import MyCVsPage from './pages/MyCVsPage';
 import CVDetailPage from './pages/CVDetailPage';
+import SkillInsightsPage from './pages/SkillInsightsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import Navbar from './components/Navbar';
 import AuthenticatedLayout from './features/auth/AuthenticatedLayout';
@@ -19,6 +20,7 @@ const App = () => {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/cvs" element={<MyCVsPage />} />
             <Route path="/cvs/:publicId" element={<CVDetailPage />} />
+            <Route path="/skill-insights" element={<SkillInsightsPage />} />
           </Route>
         </Route>
         <Route path="*" element={<NotFoundPage />} />

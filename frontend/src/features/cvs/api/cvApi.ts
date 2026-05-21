@@ -1,7 +1,7 @@
 import {
   fetchAuthenticatedJson,
   type TokenProvider,
-  uploadAuthenticatedFile
+  uploadAuthenticatedFileWithMeta
 } from '../../../shared/api/apiClient';
 import type { CVDetailResponse, CVListResponse, CVStatus, CVUploadResponse } from './types';
 
@@ -37,10 +37,23 @@ export const uploadCV = async (
   file: File,
   onProgress?: (progress: number) => void
 ): Promise<CVUploadResponse> => {
-  return uploadAuthenticatedFile({
+  const response = await uploadAuthenticatedFileWithMeta<CVUploadResponse>({
     path: '/cvs/upload',
     file,
     getToken,
     onProgress
   });
+
+  const body = response.data;
+  const cachedHeader = response.meta.headers['x-smart-cache-hit'] ?? response.meta.headers['x-cache-hit'];
+  const processingSecondsHeader =
+    response.meta.headers['x-processing-time-seconds'] ?? response.meta.headers['x-processing-duration-seconds'];
+
+  return {
+    ...body,
+    cached: body.cached ?? cachedHeader === 'true',
+    processing_time_seconds:
+      body.processing_time_seconds ??
+      (processingSecondsHeader ? Number(processingSecondsHeader) : null)
+  };
 };

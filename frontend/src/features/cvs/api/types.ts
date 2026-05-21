@@ -37,32 +37,48 @@ export type CVRecord = {
   };
   normalized_content: {
     personal_info: {
+      name: string | null;
       full_name: string | null;
       email: string | null;
       phone: string | null;
       location: string | null;
+      github?: string | null;
+      linkedin?: string | null;
       summary: string | null;
     };
     skills: string[];
     experience: Array<{
-      title: string;
+      title: string | null;
       company: string | null;
       start_date: string | null;
       end_date: string | null;
+      location?: string | null;
+      responsibilities: string[];
       description: string | null;
     }>;
     education: Array<{
-      institution: string;
+      institution: string | null;
       degree: string | null;
       field_of_study: string | null;
+      start_date: string | null;
+      end_date: string | null;
       graduation_date: string | null;
+      gpa: string | null;
     }>;
     projects: Array<{
-      name: string;
+      name: string | null;
       description: string | null;
+      technologies: string[];
+      start_date: string | null;
+      end_date: string | null;
     }>;
-    certifications: string[];
+    certifications: Array<{
+      name: string | null;
+      issuer: string | null;
+      date: string | null;
+    }>;
     languages: string[];
+    categorized_skills?: Record<string, string[]>;
     raw_sections: Record<string, string[]>;
   } | null;
   normalized_text: string | null;
@@ -78,6 +94,8 @@ export type CVRecord = {
 
 export type CVUploadResponse = {
   cv: CVRecord;
+  cached?: boolean;
+  processing_time_seconds?: number | null;
 };
 
 export type CVListResponse = {
