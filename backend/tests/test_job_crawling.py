@@ -4,7 +4,9 @@ from datetime import datetime
 from app.models.crawled_job import CrawledJob
 from app.services.job_crawling_service import JobCrawlingService
 from app.ai.skills.extractor import SkillExtractionEngine
-
+import pytest
+from app.services.job_crawling_service import JobCrawlingService
+from app.ai.skills.extractor import SkillExtractionEngine
 
 class StubPlaywrightClient:
     def __enter__(self):
@@ -47,7 +49,8 @@ class StubStorage:
         return job.model_dump()
 
 
-def test_crawling_service_processes_skills_and_creates_records() -> None:
+@pytest.mark.asyncio
+async def test_crawling_service_processes_skills_and_creates_records() -> None:
     raw_description = 'Experience with ReactJS, Next.js, TailwindCSS.'
     job = CrawledJob(
         title='Frontend Engineer',
@@ -69,7 +72,7 @@ def test_crawling_service_processes_skills_and_creates_records() -> None:
         crawlers=[StubCrawler(['https://example.com/job1'], {'https://example.com/job1': job})],
     )
 
-    summary = asyncio.run(service.crawl())
+    summary = await service.crawl()  # bỏ asyncio.run, dùng await
 
     assert summary['saved_jobs'] == 1
     assert summary['duplicate_jobs'] == 0
@@ -79,7 +82,8 @@ def test_crawling_service_processes_skills_and_creates_records() -> None:
     assert 'frontend' in saved_job.categorized_skills
 
 
-def test_crawling_service_skips_duplicate_urls() -> None:
+@pytest.mark.asyncio
+async def test_crawling_service_skips_duplicate_urls() -> None:
     raw_description = 'Experience with Python, Django.'
     job = CrawledJob(
         title='Backend Engineer',
@@ -102,14 +106,15 @@ def test_crawling_service_skips_duplicate_urls() -> None:
         crawlers=[StubCrawler(['https://example.com/job1'], {'https://example.com/job1': job})],
     )
 
-    summary = asyncio.run(service.crawl())
+    summary = await service.crawl()
 
     assert summary['saved_jobs'] == 0
     assert summary['duplicate_jobs'] == 1
     assert summary['failed_jobs'] == 0
 
 
-def test_job_parser_handles_empty_page_safe() -> None:
+@pytest.mark.asyncio
+async def test_job_parser_handles_empty_page_safe() -> None:
     job = CrawledJob(
         title='Something',
         company='Corp',
@@ -130,7 +135,7 @@ def test_job_parser_handles_empty_page_safe() -> None:
         crawlers=[StubCrawler(['https://example.com/job-empty'], {'https://example.com/job-empty': job})],
     )
 
-    summary = asyncio.run(service.crawl())
+    summary = await service.crawl()
 
     assert summary['saved_jobs'] == 1
     assert summary['failed_jobs'] == 0
