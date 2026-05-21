@@ -10,7 +10,7 @@ from app.models.cv import (
 )
 from app.models.user import User
 from app.repositories.cv_repository import CVRepository
-from app.services.cv_parser import StructuredCVParserService
+from app.services.smart_cv_parser import SmartCVParserService
 from app.services.document_extractor import DocumentExtractionService
 from app.services.file_storage import LocalFileStorageService
 from app.services.text_normalizer import TextNormalizationService
@@ -25,14 +25,14 @@ class CVIngestionService:
         storage_service: LocalFileStorageService | None = None,
         extraction_service: DocumentExtractionService | None = None,
         normalization_service: TextNormalizationService | None = None,
-        parser_service: StructuredCVParserService | None = None,
+        parser_service: SmartCVParserService | None = None,
         validation_service: UploadValidationService | None = None
     ) -> None:
         self.repository = repository or CVRepository()
         self.storage_service = storage_service or LocalFileStorageService()
         self.extraction_service = extraction_service or DocumentExtractionService()
         self.normalization_service = normalization_service or TextNormalizationService()
-        self.parser_service = parser_service or StructuredCVParserService()
+        self.parser_service = parser_service or SmartCVParserService()
         self.validation_service = validation_service or UploadValidationService()
 
     async def ensure_ready(self) -> None:
@@ -78,7 +78,7 @@ class CVIngestionService:
                 content
             )
             normalized_text = self.normalization_service.normalize(text)
-            parsed_content, parser_metadata = self.parser_service.parse(normalized_text)
+            parsed_content, parser_metadata = await self.parser_service.parse(normalized_text)
             extraction_metadata = CVExtractionMetadata(
                 extractor_name=extractor_name,
                 extractor_version=extractor_version,

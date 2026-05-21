@@ -12,6 +12,7 @@ from app.crawlers.sources.topcv import TopCVCrawler
 from app.crawlers.sources.vietnamworks import VietnamWorksCrawler
 from app.models.crawled_job import CrawledJob
 from app.crawlers.parser import merge_description_and_requirements
+from app.services.skill_taxonomy_builder import SkillTaxonomyBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +23,13 @@ class JobCrawlingService:
         repository: JobStorage | None = None,
         playwright_client: PlaywrightClient | None = None,
         skill_engine: SkillExtractionEngine | None = None,
+        taxonomy_builder: SkillTaxonomyBuilder | None = None,
         crawlers: list[Any] | None = None,
     ) -> None:
         self.repository = repository or JobStorage()
         self.playwright_client = playwright_client or PlaywrightClient()
         self.skill_engine = skill_engine or SkillExtractionEngine()
+        self.taxonomy_builder = taxonomy_builder or SkillTaxonomyBuilder()
         self.crawlers = crawlers or [
             ITviecCrawler(self.playwright_client),
             TopCVCrawler(self.playwright_client),
@@ -35,12 +38,14 @@ class JobCrawlingService:
 
     async def ensure_ready(self) -> None:
         await self.repository.ensure_ready()
+        await self.taxonomy_builder.ensure_ready()
 
     async def crawl(
         self,
         sources: list[str] | None = None,
         limit_per_source: int = 20,
         rate_limit_seconds: float = 1.0,
+        refresh_taxonomy: bool = True,
     ) -> dict[str, int | list[str]]:
         summary = {
             'sources': 0,
@@ -91,6 +96,11 @@ class JobCrawlingService:
 
                     if rate_limit_seconds > 0:
                         time.sleep(rate_limit_seconds)
+
+        if refresh_taxonomy and summary['saved_jobs'] > 0:
+            taxonomy_summary = await self.taxonomy_builder.rebuild()
+            summary['taxonomy_processed_jobs'] = taxonomy_summary['processed_jobs']
+            summary['taxonomy_unique_skills'] = taxonomy_summary['unique_skills']
 
         return summary
 

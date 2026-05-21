@@ -1,7 +1,7 @@
 from datetime import datetime
 from enum import Enum
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 
 
 class CVFileType(str, Enum):
@@ -46,6 +46,7 @@ class CVExtractionMetadata(BaseModel):
 
 
 class StructuredCVPersonalInfo(BaseModel):
+    name: str | None = None
     full_name: str | None = None
     email: str | None = None
     phone: str | None = None
@@ -54,25 +55,54 @@ class StructuredCVPersonalInfo(BaseModel):
     location: str | None = None
     summary: str | None = None
 
+    @model_validator(mode='after')
+    def sync_name_fields(self) -> 'StructuredCVPersonalInfo':
+        resolved_name = self.name or self.full_name
+        self.name = resolved_name
+        self.full_name = resolved_name
+        return self
+
 
 class StructuredCVExperienceItem(BaseModel):
-    title: str
+    title: str | None = None
     company: str | None = None
     start_date: str | None = None
     end_date: str | None = None
     description: str | None = None
+    location: str | None = None
+    responsibilities: list[str] = Field(default_factory=list)
+
+    model_config = ConfigDict(extra='allow')
 
 
 class StructuredCVEducationItem(BaseModel):
-    institution: str
+    institution: str | None = None
     degree: str | None = None
     field_of_study: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
     graduation_date: str | None = None
+    gpa: str | None = None
+
+    model_config = ConfigDict(extra='allow')
 
 
 class StructuredCVProjectItem(BaseModel):
-    name: str
+    name: str | None = None
     description: str | None = None
+    technologies: list[str] = Field(default_factory=list)
+    start_date: str | None = None
+    end_date: str | None = None
+
+    model_config = ConfigDict(extra='allow')
+
+
+class StructuredCVCertificationItem(BaseModel):
+    name: str | None = None
+    issuer: str | None = None
+    date: str | None = None
+
+    model_config = ConfigDict(extra='allow')
 
 
 class StructuredCVData(BaseModel):
@@ -81,7 +111,7 @@ class StructuredCVData(BaseModel):
     experience: list[StructuredCVExperienceItem] = Field(default_factory=list)
     education: list[StructuredCVEducationItem] = Field(default_factory=list)
     projects: list[StructuredCVProjectItem] = Field(default_factory=list)
-    certifications: list[str] = Field(default_factory=list)
+    certifications: list[StructuredCVCertificationItem] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)
     categorized_skills: dict[str, list[str]] = Field(default_factory=dict)
     raw_sections: dict[str, list[str]] = Field(default_factory=dict)

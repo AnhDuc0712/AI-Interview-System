@@ -7,7 +7,10 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.error_handlers import register_exception_handlers
 from app.middleware.auth import AuthenticationContextMiddleware
+from app.services.ats_scoring_service import get_ats_scoring_service
 from app.services.cv_ingestion import get_cv_ingestion_service
+from app.services.skill_suggestion_service import get_skill_suggestion_service
+from app.services.skill_taxonomy_builder import get_skill_taxonomy_builder
 from app.services.user_sync import get_user_sync_service
 
 
@@ -15,6 +18,9 @@ from app.services.user_sync import get_user_sync_service
 async def lifespan(_: FastAPI):
     await get_user_sync_service().ensure_indexes()
     await get_cv_ingestion_service().ensure_ready()
+    await get_skill_taxonomy_builder().ensure_ready()
+    await get_ats_scoring_service().ensure_ready()
+    await get_skill_suggestion_service().ensure_ready()
     yield
 
 

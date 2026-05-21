@@ -15,8 +15,15 @@ class PDFTextExtractor:
     def _extract_sync(self, content: bytes) -> str:
         try:
             from pypdf import PdfReader
+            # Clean BOM and leading garbage bytes that can cause 'invalid pdf header' errors
+            raw_data = content
+            if raw_data.startswith(b'\xef\xbb\bf'):
+                raw_data = raw_data[3:]
+            pdf_pos = raw_data.find(b'%PDF')
+            if pdf_pos > 0:
+                raw_data = raw_data[pdf_pos:]
 
-            reader = PdfReader(io.BytesIO(content))
+            reader = PdfReader(io.BytesIO(raw_data))
             pages = [page.extract_text() or '' for page in reader.pages]
             return '\n'.join(pages)
         except Exception as exc:

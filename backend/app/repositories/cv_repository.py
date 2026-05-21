@@ -123,7 +123,7 @@ class CVRepository:
                     'extraction': extraction.model_dump(),
                     'parser': parser.model_dump(),
                     'normalized_text': normalized_text,
-                    'normalized_content': normalized_content.model_dump(),
+                    'normalized_content': normalized_content if isinstance(normalized_content, dict) else normalized_content.model_dump(),
                     'metadata.updated_at': now,
                     'metadata.processing_completed_at': now,
                     'metadata.failed_at': None,

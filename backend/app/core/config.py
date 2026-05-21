@@ -59,6 +59,9 @@ class Settings(BaseSettings):
         default=5 * 1024 * 1024,
         validation_alias='CV_MAX_FILE_SIZE_BYTES'
     )
+    gemini_api_key: str | None = Field(default=None, validation_alias='GEMINI_API_KEY')
+    gemini_model: str = Field(default='models/gemini-2.5-flash', validation_alias='GEMINI_MODEL')
+    hybrid_confidence_threshold: float = Field(default=0.9, validation_alias='HYBRID_CONFIDENCE_THRESHOLD')
 
     model_config = SettingsConfigDict(
         case_sensitive=True,
